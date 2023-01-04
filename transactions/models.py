@@ -26,8 +26,8 @@ class Transaction(models.Model):
     #     related_name="transactions",
     # )
 
-    # category = models.ForeignKey(
-    #     "categories.Category",
-    #     on_delete=models.CASCADE,
-    #     related_name="categories_transactions",
-    # )
+    category = models.ForeignKey(
+        "categories.Category",
+        on_delete=models.CASCADE,
+        related_name="categories_transactions",
+    )

@@ -24,6 +24,6 @@ class Category(models.Model):
     limit = models.FloatField(default=0)
     is_healthy = models.BooleanField(default=True)
 
-    transactions = models.ForeignKey(
+    """ transactions = models.ForeignKey(
         "transactions.Transaction", related_name="category"
-    )
+    ) """
