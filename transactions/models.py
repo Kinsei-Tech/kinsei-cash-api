@@ -20,11 +20,11 @@ class Transaction(models.Model):
     description = models.CharField(max_length=256, null=True)
     value = models.FloatField()
 
-    # user = models.ForeignKey(
-    #     "users.User",
-    #     on_delete=models.CASCADE,
-    #     related_name="transactions",
-    # )
+    """ user = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="transactions",
+    ) """
 
     category = models.ForeignKey(
         "categories.Category",

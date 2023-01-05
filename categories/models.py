@@ -14,13 +14,15 @@ class CategoryName(models.TextChoices):
     transportation = "transportation"
     food = "food"
     donation = "donation"
+    other = "other"
 
 
 class Category(models.Model):
     class Meta:
         ordering = ["id"]
 
-    name = models.CharField(max_length=20, choices=CategoryName.choices)
+    name = models.CharField(
+        max_length=20, choices=CategoryName.choices, default=CategoryName.other)
     limit = models.FloatField(default=0)
     is_healthy = models.BooleanField(default=True)
 

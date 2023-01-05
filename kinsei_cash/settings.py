@@ -36,6 +36,7 @@ if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
+
 DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
