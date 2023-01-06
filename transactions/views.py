@@ -69,7 +69,7 @@ class TransactionView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         category_value = self.request.data["category"]
-        category = Category.objects.get_or_create(name=category_value)[0]
+        category = Category.objects.get_or_create(name=category_value, user=self.request.user)[0]
         serializer.save(category=category, user=self.request.user)
 
 
