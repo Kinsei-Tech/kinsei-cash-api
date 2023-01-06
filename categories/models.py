@@ -26,3 +26,9 @@ class Category(models.Model):
     )
     limit = models.FloatField(default=0)
     is_healthy = models.BooleanField(default=True)
+
+    user = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="category",
+    )

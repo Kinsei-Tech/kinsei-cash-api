@@ -9,8 +9,16 @@ from .models import Category
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["id", "name", "limit", "is_healthy", "categories_transactions"]
-        read_only_fields = ["id", "is_healthy", "categories_transactions"]
+        fields = [
+            "id",
+            "name",
+            "limit",
+            "is_healthy",
+            "categories_transactions",
+            "user",
+        ]
+        read_only_fields = ["id", "is_healthy", "categories_transactions", "user"]
+        depth = 1
 
     def get_is_healthy(self, obj: Category):
         transactions_value = 1000
