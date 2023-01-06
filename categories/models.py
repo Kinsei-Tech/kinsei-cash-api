@@ -25,7 +25,6 @@ class Category(models.Model):
         max_length=20, choices=CategoryName.choices, default=CategoryName.other
     )
     limit = models.FloatField(default=0)
-    is_healthy = models.BooleanField(default=True)
 
     user = models.ForeignKey(
         "users.User",
