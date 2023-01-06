@@ -2,9 +2,6 @@ from rest_framework import serializers
 
 from .models import Transaction
 
-from categories.models import Category
-import ipdb
-
 
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,10 +13,6 @@ class TransactionSerializer(serializers.ModelSerializer):
             "date",
             "description",
             "value",
-            "category_"
+            "category_id",
             "id",
         ]
-
-    """ def create(self, validated_data):
-        ipdb.set_trace()
-        return Transaction.objects.create(**validated_data) """
