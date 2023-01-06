@@ -76,5 +76,4 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [JWTAuthentication]
 
     serializer_class = TransactionSerializer
-    # queryset = Transaction
     queryset = Transaction.objects.all()
