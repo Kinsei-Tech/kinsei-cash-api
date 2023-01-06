@@ -13,8 +13,6 @@ class TransactionSerializer(serializers.ModelSerializer):
             "date",
             "description",
             "value",
+            "category_id",
             "id",
         ]
-
-    def create(self, validated_data):
-        return Transaction.objects.create(**validated_data)

@@ -9,6 +9,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Transaction
 from .serializers import TransactionSerializer
 
+
+from categories.models import Category
+
 # Create your views here.
 
 
@@ -36,6 +39,7 @@ def csv_data_handling(csv):
 
 
 class ExcelAutoView(APIView):
+    authentication_classes = [JWTAuthentication]
 
     def post(self, request):
         doc_request = request.FILES['file']
@@ -44,20 +48,32 @@ class ExcelAutoView(APIView):
         data_csv = [line for line in reader]
         new_data_csv = csv_data_handling(data_csv)
 
-        return Response(new_data_csv)
-        
-        
+        for data in new_data_csv:
+            category_value = data['category']
+            category = Category.objects.get_or_create(name=category_value)[0]
+            serializer = TransactionSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(category=category)
+
+        return Response({'msg': 'extract successfully added'}, status.HTTP_201_CREATED)
+
+        # return Response(new_data_csv)
+
+
 class TransactionView(generics.ListCreateAPIView):
     authentication_classes = [JWTAuthentication]
 
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
 
+    def perform_create(self, serializer):
+        category_value = self.request.data['category']
+        category = Category.objects.get_or_create(name=category_value)[0]
+        serializer.save(category=category)
+
 
 class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [JWTAuthentication]
 
     serializer_class = TransactionSerializer
-    # queryset = Transaction
     queryset = Transaction.objects.all()
-
