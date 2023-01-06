@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id",
-            "name",
+            # "name",
             "username",
             "email",
             "password",
@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         return False
 
     def create(self, validated_data: dict) -> User:
-        if "total_balance" in validated_data:    
+        if "total_balance" in validated_data:
             total_balance = validated_data["total_balance"]
             validated_data["current_balance"] = total_balance
         return User.objects.create_user(**validated_data)

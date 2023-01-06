@@ -10,14 +10,14 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('categories', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('transactions', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='transaction',
+            model_name='category',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transactions', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='category', to=settings.AUTH_USER_MODEL),
         ),
     ]
