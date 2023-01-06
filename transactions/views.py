@@ -6,6 +6,7 @@ import json
 import ipdb
 from rest_framework import generics
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Transaction
 from .serializers import TransactionSerializer
 
@@ -61,6 +62,7 @@ class ExcelAutoView(APIView):
 
 class TransactionView(generics.ListCreateAPIView):
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
@@ -68,7 +70,6 @@ class TransactionView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         category_value = self.request.data["category"]
         category = Category.objects.get_or_create(name=category_value, user=self.request.user)[0]
-
         serializer.save(category=category, user=self.request.user)
 
 
@@ -77,3 +78,13 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
+
+    def perform_update(self, serializer):
+        ipdb.set_trace()
+        if self.request.data["category"]:
+            # category = Category.objects.get_or_create(self.request.data["category"], user=self.request.user)[0]
+            category = Category.objects.get_or_create(
+                name=self.request.data["category"]
+            )[0]
+            serializer.save(category=category)
+        serializer.save()
