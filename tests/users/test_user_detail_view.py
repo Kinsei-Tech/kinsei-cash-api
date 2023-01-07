@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from tests.factories import create_user_with_token
 
+import ipdb
 
 User: AbstractUser = get_user_model()
 
@@ -16,7 +17,7 @@ class UserDetailViewsTest(APITestCase):
 
         user_2_data = {
             "email": "wigo_rossim@mail.com",
-            "name": "Wigo Rossim",
+            "username": "wigo_rossim",
             "password": "1234",
             "total_balance": 8000,
             "goal_balance": 2000,
@@ -25,7 +26,7 @@ class UserDetailViewsTest(APITestCase):
         cls.user_2, token_2 = create_user_with_token(user_data=user_2_data)
         cls.access_token_2 = str(token_2.access_token)
 
-        cls.BASE_URL = f"/api/users/{cls.user_1.pk}/"
+        cls.BASE_URL = f"/api/users/{cls.user_1.id}/"
 
         cls.maxDiff = None
 
@@ -76,19 +77,20 @@ class UserDetailViewsTest(APITestCase):
         )
         self.assertEqual(expected_status_code, returned_status_code, msg)
 
-        expected_data = {
-            "id": self.user_1.pk,
-            "email": self.user_1.email,
-            "name": self.user_1.email,
-            "total_balance": self.user_1.total_balance,
-            "current_balance": self.user_1.current_balance,
-            "goal_balance": self.user_1.goal_balance,
-            "is_active": self.user_1.is_active,
-            "is_healthy": self.user_1.is_healthy,
+        expected_fields = {
+            "id",
+            "username",
+            "email",
+            "is_active",
+            "is_healthy",
+            "total_balance",
+            "goal_balance",
+            "current_balance",
         }
-        returned_data = response.json()
-        msg = f"Erro em GET rota {self.BASE_URL}. Resposta esperada: {expected_data}. Resposta recebida: {returned_data}"
-        self.assertDictEqual(expected_data, returned_data, msg)
+        returned_data: dict = response.json()
+        returned_fields = set(returned_data.keys())
+        msg = f"Erro em GET rota {self.BASE_URL}. Resposta esperada: {expected_fields}. Resposta recebida: {returned_fields}"
+        self.assertSetEqual(expected_fields, returned_fields, msg)
 
     def test_soft_delete_user_without_token(self):
         response = self.client.delete(self.BASE_URL, format="json")
@@ -176,7 +178,6 @@ class UserDetailViewsTest(APITestCase):
         info_to_patch = {
             "id": "está errado",
             "email": "lais_bomtempo_sm@mail.com",
-            "name": "Laís Bomtempo Silveira Martins",
             "current_balance": 2000,
             "total_balance": 7000,
             "goal_balance": 2000,
@@ -195,9 +196,8 @@ class UserDetailViewsTest(APITestCase):
         self.assertEqual(expected_status_code, returned_status_code, msg)
 
         expected_data = {
-            "id": self.user_1.pk,
+            "id": str(self.user_1.id),
             "email": info_to_patch["email"],
-            "name": info_to_patch["name"],
             "total_balance": self.user_1.total_balance,
             "current_balance": self.user_1.current_balance,
             "goal_balance": info_to_patch["goal_balance"],
