@@ -7,19 +7,36 @@ from .models import Category
 
 
 class CategorySerializer(serializers.ModelSerializer):
+
+    is_healthy = serializers.SerializerMethodField("get_is_healthy")
+    transactions_value = serializers.SerializerMethodField("get_transactions_value")
+
     class Meta:
+        id = serializers.UUIDField(read_only=True)
         model = Category
-        fields = ["id", "name", "limit", "categories_transactions"]
-        read_only_fields = ["id", "categories_transactions"]
-        extra_kwargs = {"is_healthy": {"read_only": True}}
+        fields = [
+            "id",
+            "name",
+            "limit",
+            "categories_transactions",
+            "transactions_value",
+            "is_healthy",
+        ]
+        read_only_fields = [
+            "id",
+            "categories_transactions",
+            "transactions_value",
+            "is_healthy",
+        ]
+        extra_kwargs = {
+            "is_healthy": {"read_only": True},
+        }
         depth = 1
 
     def get_is_healthy(self, obj: Category):
-        ipdb.set_trace()
+        if obj.limit >= obj.transactions_value:
+            return True
         return False
-
-        """if obj.limit < transactions_value and obj.limit > 0:
-            return False"""
 
     def create(self, validated_data):
         return Category.objects.create(**validated_data)
