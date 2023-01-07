@@ -12,9 +12,9 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_healthy = models.BooleanField(default=True)
     total_balance = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00, null=True
+        max_digits=1000, decimal_places=2, default=0, null=True
     )
-    current_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    current_balance = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
     goal_balance = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00, null=True
+        max_digits=1000, decimal_places=2, default=0, null=True
     )
