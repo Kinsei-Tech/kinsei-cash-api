@@ -182,7 +182,7 @@ class UserDetailViewsTest(APITestCase):
             "total_balance": 7000,
             "goal_balance": 2000,
             "is_active": False,
-            "is_healthy": False,
+            "is_healthy": False
         }
         self.client.credentials(HTTP_AUTHORIZATION="Bearer " + self.access_token_1)
         response = self.client.patch(self.BASE_URL, data=info_to_patch, format="json")
@@ -198,11 +198,12 @@ class UserDetailViewsTest(APITestCase):
         expected_data = {
             "id": str(self.user_1.id),
             "email": info_to_patch["email"],
-            "total_balance": self.user_1.total_balance,
-            "current_balance": self.user_1.current_balance,
-            "goal_balance": info_to_patch["goal_balance"],
+            "username": self.user_1.username,
+            "total_balance": "5000.00",
+            "current_balance": "0.00",
+            "goal_balance": "2000.00",
             "is_active": self.user_1.is_active,
-            "is_healthy": self.user_1.is_healthy,
+            "is_healthy": False,
         }
         returned_data = response.json()
         msg = f"Erro em UPDATE rota {self.BASE_URL}. Resposta esperada: {expected_data}. Resposta recebida: {returned_data}"
