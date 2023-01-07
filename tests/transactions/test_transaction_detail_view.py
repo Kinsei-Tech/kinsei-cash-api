@@ -11,7 +11,7 @@ class TransactionDetailViewsTest(APITestCase):
 
         user_2_data = {
             "email": "wigo_rossim@mail.com",
-            "name": "Wigo Rossim",
+            "username": "wigoRossim",
             "password": "1234",
             "total_balance": 8000,
             "goal_balance": 2000,
