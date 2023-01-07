@@ -10,7 +10,7 @@ User: AbstractUser = get_user_model()
 class UserLoginViewTest(APITestCase):
     @classmethod
     def setUpTestData(cls) -> None:
-        cls.BASE_URL = "/api/users/login"
+        cls.BASE_URL = "/api/login/"
 
         cls.maxDiff = None
 
@@ -32,24 +32,24 @@ class UserLoginViewTest(APITestCase):
 
         returned_data: dict = response.json()
         expected_fields = {
-            "email",
+            "username",
             "password",
         }
         returned_fields = set(returned_data.keys())
-        msg = "Verifique se a requisição apresenta as chaves obrigatórias: email e password."
+        msg = "Verifique se a requisição apresenta as chaves obrigatórias: username e password."
         self.assertSetEqual(expected_fields, returned_fields, msg)
 
     def test_login_success(self):
         register_data = {
+            "username": "laissm",
             "email": "lais_bomtempo@mail.com",
-            "name": "Laís Bomtempo",
             "password": "1234",
             "total_balance": 5000,
             "goal_balance": 1000,
         }
         User.objects.create_user(**register_data)
         login_data = {
-            "email": "lais_bomtempo@email.com",
+            "username": "laissm",
             "password": "1234",
         }
 
@@ -74,7 +74,7 @@ class UserLoginViewTest(APITestCase):
 
     def test_login_with_wrong_credentials(self):
         login_data = {
-            "email": "email_nao_existente@email.com",
+            "username": "username não existente",
             "password": "111111",
         }
 
