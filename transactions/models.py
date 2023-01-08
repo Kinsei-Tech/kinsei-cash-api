@@ -9,7 +9,7 @@ class TypeChoice(models.TextChoices):
 
 class Transaction(models.Model):
 
-    # id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     name = models.CharField(max_length=256)
     type = models.CharField(
         choices=TypeChoice.choices,
