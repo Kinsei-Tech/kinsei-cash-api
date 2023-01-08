@@ -14,7 +14,8 @@ class User(AbstractUser):
     total_balance = models.DecimalField(
         max_digits=1000, decimal_places=2, default=0, null=True
     )
-    current_balance = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
+    current_balance = models.DecimalField(
+        max_digits=1000, decimal_places=2, default=0)
     goal_balance = models.DecimalField(
         max_digits=1000, decimal_places=2, default=0, null=True
     )
