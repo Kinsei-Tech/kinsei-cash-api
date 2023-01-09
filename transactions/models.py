@@ -3,8 +3,8 @@ from django.db import models
 
 
 class TypeChoice(models.TextChoices):
-    cashin = "cashin"
-    cashout = "cashout"
+    CASHIN = "cashin"
+    CASHOUT = "cashout"
 
 
 class Transaction(models.Model):
@@ -13,7 +13,7 @@ class Transaction(models.Model):
     name = models.CharField(max_length=256)
     type = models.CharField(
         choices=TypeChoice.choices,
-        default=TypeChoice.cashin,
+        default=TypeChoice.CASHIN,
         max_length=8,
     )
     date = models.DateTimeField(auto_now_add=True)

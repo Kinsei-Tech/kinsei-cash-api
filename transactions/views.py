@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Transaction
 from .serializers import TransactionSerializer
 from users.models import User
+from categories.serializers import CategorySerializer
 
 from categories.models import Category
 
@@ -22,7 +23,7 @@ def csv_data_handling(csv):
         del transaction_dict["identificador"]
         transaction_dict["value"] = transaction_dict.pop("valor")
         transaction_dict["value"] = float(transaction_dict["value"])
-        transaction_dict["category"] = "other"
+        transaction_dict["category"] = "teste"
         if transaction_dict["value"] < 0:
             transaction_dict["type"] = "cashout"
         else:
@@ -48,8 +49,21 @@ class ExcelAutoView(APIView):
 
         for data in new_data_csv:
             category_value = data["category"]
-            category = Category.objects.get_or_create(
-                name=category_value, user=self.request.user)[0]
+
+            try:
+                ipdb.set_trace()
+                category = Category.objects.get(
+                    name=category_value)
+            except Category.DoesNotExist:
+                category_value = {"name": category_value}
+                category = CategorySerializer(data=category_value)
+                category.is_valid(raise_exception=True)
+                category.save(user=request.user)
+
+            """ category = Category.objects.get_or_create(
+                name=category_value, user=self.request.user
+            )[0] """
+            ipdb.set_trace()
             serializer = TransactionSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save(category=category, user=self.request.user)
@@ -66,6 +80,17 @@ class TransactionView(generics.ListCreateAPIView):
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
 
+    def create(self, request, *args, **kwargs):
+        category_value = self.request.data.get("category", False)
+        if category_value:
+            category = Category.objects.get_or_create(name=category_value)[0]
+            self.request.data.update({"category": category})
+        else:
+            return Response(
+                {"msg": "Missing category field"}, status.HTTP_400_BAD_REQUEST
+            )
+        return super().create(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         getUser = User.objects.get()
         numberFloat = float(self.request.data["value"])
@@ -76,11 +101,9 @@ class TransactionView(generics.ListCreateAPIView):
             else:
                 getUser.current_balance = float(getUser.current_balance) - numberFloat
                 getUser.save()
-        
-        category_value = self.request.data["category"]
-        category = Category.objects.get_or_create(
-            name=category_value, user=self.request.user)[0]
-        serializer.save(category=category, user=self.request.user)
+        user_value = self.request.user
+        category = self.request.data.get("category")
+        serializer.save(category=category, user=user_value)
 
 
 class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -89,12 +112,18 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
 
+    def update(self, request, *args, **kwargs):
+        category_value = self.request.data.get("category", False)
+        if category_value:
+            category = Category.objects.get_or_create(name=category_value)[0]
+            self.request.data.update({"category": category})
+        else:
+            return Response(
+                {"msg": "Missing category field"}, status.HTTP_400_BAD_REQUEST
+            )
+        return super().update(request, *args, **kwargs)
+
     def perform_update(self, serializer):
-        ipdb.set_trace()
-        if self.request.data["category"]:
-            # category = Category.objects.get_or_create(self.request.data["category"], user=self.request.user)[0]
-            category = Category.objects.get_or_create(
-                name=self.request.data["category"]
-            )[0]
-            serializer.save(category=category)
-        serializer.save()
+        user_value = self.request.user
+        category = self.request.data.get("category")
+        serializer.save(category=category, user=user_value)

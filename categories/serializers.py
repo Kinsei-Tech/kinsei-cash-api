@@ -45,11 +45,11 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def get_is_healthy(self, obj: Category):
         if (
-            float(obj.limit) >= self.get_total_value_category(obj)
+            float(obj.limit) <= self.get_total_value_category(obj)
             and float(obj.limit) > 0
         ):
-            return True
-        return False
+            return False
+        return True
 
     def create(self, validated_data):
         return Category.objects.create(**validated_data)
