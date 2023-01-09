@@ -68,9 +68,16 @@ class TransactionView(generics.ListCreateAPIView):
     queryset = Transaction.objects.all()
 
     def perform_create(self, serializer):
-        category_value = self.request.data["category"]
-        category = Category.objects.get_or_create(name=category_value)[0]
-        serializer.save(category=category, user=self.request.user)
+        if self.request.data["category"]:
+            category = Category.objects.get_or_create(
+                name=self.request.data["category"]
+            )[0]
+            serializer.save(category=category, user=self.request.user)
+
+    # def perform_create(self, serializer):
+    #     category_value = self.request.data["category"]
+    #     category = Category.objects.get_or_create(name=category_value)[0]
+    #     serializer.save(category=category, user=self.request.user)
 
 
 class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -79,12 +86,26 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
 
+    """Está quebrando o servidor quando não passa category"""
+
     def perform_update(self, serializer):
-        ipdb.set_trace()
         if self.request.data["category"]:
             # category = Category.objects.get_or_create(self.request.data["category"], user=self.request.user)[0]
             category = Category.objects.get_or_create(
                 name=self.request.data["category"]
             )[0]
             serializer.save(category=category)
-        serializer.save()
+
+    """Está retornando status 200 OK quando não passa a categoria, deveria retornar uma mensagem de erro personalizada."""
+
+    # def perform_update(self, serializer):
+    #     # category = Category.objects.get_or_create(self.request.data["category"], user=self.request.user)[0]
+    #     category_dict = self.request.data
+    #     for _ in category_dict:
+    #         try:
+    #             category = Category.objects.get_or_create(
+    #                 name=self.request.data["category"]
+    #             )[0]
+    #             serializer.save(category=category)
+    #         except KeyError:
+    #             continue
