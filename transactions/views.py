@@ -51,7 +51,8 @@ class ExcelAutoView(APIView):
         for data in new_data_csv:
             category_value = data["category"]
             category = Category.objects.get_or_create(
-                name=category_value, user=self.request.user)[0]
+                name=category_value, user=self.request.user
+            )[0]
             serializer = TransactionSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save(category=category, user=self.request.user)
@@ -68,17 +69,21 @@ class TransactionView(generics.ListCreateAPIView):
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
 
-    def perform_create(self, serializer):
-        if self.request.data["category"]:
-            category = Category.objects.get_or_create(
-                name=self.request.data["category"]
-            )[0]
-            serializer.save(category=category, user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        category_value = self.request.data.get("category", False)
+        if category_value:
+            category = Category.objects.get_or_create(name=category_value)[0]
+            self.request.data.update({"category": category})
+        else:
+            return Response(
+                {"msg": "Missing category field"}, status.HTTP_400_BAD_REQUEST
+            )
+        return super().create(request, *args, **kwargs)
 
-    # def perform_create(self, serializer):
-    #     category_value = self.request.data["category"]
-    #     category = Category.objects.get_or_create(name=category_value)[0]
-    #     serializer.save(category=category, user=self.request.user)
+    def perform_create(self, serializer):
+        user_value = self.request.user
+        category = self.request.data.get("category")
+        serializer.save(category=category, user=user_value)
 
 
 class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -87,26 +92,18 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
 
-    """Está quebrando o servidor quando não passa category"""
+    def update(self, request, *args, **kwargs):
+        category_value = self.request.data.get("category", False)
+        if category_value:
+            category = Category.objects.get_or_create(name=category_value)[0]
+            self.request.data.update({"category": category})
+        else:
+            return Response(
+                {"msg": "Missing category field"}, status.HTTP_400_BAD_REQUEST
+            )
+        return super().update(request, *args, **kwargs)
 
     def perform_update(self, serializer):
-        if self.request.data["category"]:
-            # category = Category.objects.get_or_create(self.request.data["category"], user=self.request.user)[0]
-            category = Category.objects.get_or_create(
-                name=self.request.data["category"]
-            )[0]
-            serializer.save(category=category)
-
-    """Está retornando status 200 OK quando não passa a categoria, deveria retornar uma mensagem de erro personalizada."""
-
-    # def perform_update(self, serializer):
-    #     # category = Category.objects.get_or_create(self.request.data["category"], user=self.request.user)[0]
-    #     category_dict = self.request.data
-    #     for _ in category_dict:
-    #         try:
-    #             category = Category.objects.get_or_create(
-    #                 name=self.request.data["category"]
-    #             )[0]
-    #             serializer.save(category=category)
-    #         except KeyError:
-    #             continue
+        user_value = self.request.user
+        category = self.request.data.get("category")
+        serializer.save(category=category, user=user_value)
