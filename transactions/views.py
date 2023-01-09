@@ -24,7 +24,7 @@ def csv_data_handling(csv):
         del transaction_dict["identificador"]
         transaction_dict["value"] = transaction_dict.pop("valor")
         transaction_dict["value"] = float(transaction_dict["value"])
-        transaction_dict["category"] = "teste"
+        transaction_dict["category"] = "other"
         if transaction_dict["value"] < 0:
             transaction_dict["type"] = "cashout"
         else:
@@ -40,6 +40,7 @@ def csv_data_handling(csv):
 
 class ExcelAutoView(APIView):
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def post(self, request):
         doc_request = request.FILES["file"]
