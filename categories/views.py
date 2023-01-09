@@ -20,3 +20,5 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
+
+    
