@@ -50,10 +50,11 @@ class ExcelAutoView(APIView):
 
         for data in new_data_csv:
             category_value = data["category"]
-            category = Category.objects.get_or_create(name=category_value)[0]
+            category = Category.objects.get_or_create(
+                name=category_value, user=self.request.user)[0]
             serializer = TransactionSerializer(data=data)
             serializer.is_valid(raise_exception=True)
-            serializer.save(category=category)
+            serializer.save(category=category, user=self.request.user)
 
         return Response({"msg": "extract successfully added"}, status.HTTP_201_CREATED)
 

@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 
@@ -21,11 +22,15 @@ class Category(models.Model):
     class Meta:
         ordering = ["id"]
 
-    name = models.CharField(
-        max_length=20, choices=CategoryName.choices, default=CategoryName.other)
-    limit = models.FloatField(default=0)
-    is_healthy = models.BooleanField(default=True)
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
 
-    """ transactions = models.ForeignKey(
-        "transactions.Transaction", related_name="category"
-    ) """
+    name = models.CharField(
+        max_length=20, choices=CategoryName.choices, default=CategoryName.other
+    )
+    limit = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
+
+    user = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="category",
+    )

@@ -14,6 +14,6 @@ class TransactionSerializer(serializers.ModelSerializer):
             "description",
             "value",
             "category_id",
-            "id",
+            "user_id",
         ]
         depth = 1
