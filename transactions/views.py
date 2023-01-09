@@ -9,7 +9,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Transaction
 from .serializers import TransactionSerializer
-
+from categories.serializers import CategorySerializer
 
 from categories.models import Category
 
@@ -24,7 +24,7 @@ def csv_data_handling(csv):
         del transaction_dict["identificador"]
         transaction_dict["value"] = transaction_dict.pop("valor")
         transaction_dict["value"] = float(transaction_dict["value"])
-        transaction_dict["category"] = "other"
+        transaction_dict["category"] = "teste"
         if transaction_dict["value"] < 0:
             transaction_dict["type"] = "cashout"
         else:
@@ -50,9 +50,21 @@ class ExcelAutoView(APIView):
 
         for data in new_data_csv:
             category_value = data["category"]
-            category = Category.objects.get_or_create(
+
+            try:
+                ipdb.set_trace()
+                category = Category.objects.get(
+                    name=category_value)
+            except Category.DoesNotExist:
+                category_value = {"name": category_value}
+                category = CategorySerializer(data=category_value)
+                category.is_valid(raise_exception=True)
+                category.save(user=request.user)
+
+            """ category = Category.objects.get_or_create(
                 name=category_value, user=self.request.user
-            )[0]
+            )[0] """
+            ipdb.set_trace()
             serializer = TransactionSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save(category=category, user=self.request.user)
