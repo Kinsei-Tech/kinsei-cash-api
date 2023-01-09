@@ -9,11 +9,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Transaction
 from .serializers import TransactionSerializer
-
+from users.models import User
 
 from categories.models import Category
-
-# Create your views here.
 
 
 def csv_data_handling(csv):
@@ -69,6 +67,16 @@ class TransactionView(generics.ListCreateAPIView):
     queryset = Transaction.objects.all()
 
     def perform_create(self, serializer):
+        getUser = User.objects.get()
+        numberFloat = float(self.request.data["value"])
+        if getUser:
+            if self.request.data["type"] == "cashin":
+                getUser.current_balance = float(getUser.current_balance) + numberFloat
+                getUser.save()
+            else:
+                getUser.current_balance = float(getUser.current_balance) - numberFloat
+                getUser.save()
+        
         category_value = self.request.data["category"]
         category = Category.objects.get_or_create(
             name=category_value, user=self.request.user)[0]
