@@ -4,8 +4,13 @@ from .models import Transaction
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    category = serializers.SerializerMethodField()
+
+    def get_category(self, obj):
+        return obj.category.name
+
     class Meta:
-        id = serializers.UUIDField(read_only=True)
         model = Transaction
         fields = [
             "name",
@@ -13,7 +18,8 @@ class TransactionSerializer(serializers.ModelSerializer):
             "date",
             "description",
             "value",
-            "category_id",
+            "category",
             "user_id",
+            "id",
         ]
         depth = 1
