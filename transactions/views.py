@@ -48,30 +48,23 @@ class ExcelAutoView(APIView):
         data_csv = [line for line in reader]
         new_data_csv = csv_data_handling(data_csv)
 
-        for data in new_data_csv:
-            category_value = data["category"]
+        category_value = new_data_csv[0]["category"]
 
-            try:
-                ipdb.set_trace()
-                category = Category.objects.get(
-                    name=category_value)
-            except Category.DoesNotExist:
-                category_value = {"name": category_value}
-                category = CategorySerializer(data=category_value)
-                category.is_valid(raise_exception=True)
-                category.save(user=request.user)
+        try:
+            category = Category.objects.get(
+                name=category_value, user=request.user)
+        except Category.DoesNotExist:
+            category_value = {"name": category_value}
+            category = CategorySerializer(data=category_value)
+            category.is_valid(raise_exception=True)
+            category.save(user=request.user)
+        serializer = TransactionSerializer(data=new_data_csv, many=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(
+            category_id=category.data['id'], user=self.request.user)
 
-            """ category = Category.objects.get_or_create(
-                name=category_value, user=self.request.user
-            )[0] """
-            ipdb.set_trace()
-            serializer = TransactionSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save(category=category, user=self.request.user)
-
-        return Response({"msg": "extract successfully added"}, status.HTTP_201_CREATED)
-
-        # return Response(new_data_csv)
+        return Response(serializer.data, status.HTTP_201_CREATED)
+        # return Response({"msg": "extract successfully added"}, status.HTTP_201_CREATED)
 
 
 class TransactionView(generics.ListCreateAPIView):
@@ -84,24 +77,28 @@ class TransactionView(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         category_value = self.request.data.get("category", False)
         if category_value:
-            category = Category.objects.get_or_create(name=category_value)[0]
+            category = Category.objects.get(
+                name=category_value, user=request.user)
             self.request.data.update({"category": category})
         else:
+
             return Response(
                 {"msg": "Missing category field"}, status.HTTP_400_BAD_REQUEST
             )
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        getUser = User.objects.get()
+        """getUser = User.objects.get()
         numberFloat = float(self.request.data["value"])
         if getUser:
             if self.request.data["type"] == "cashin":
-                getUser.current_balance = float(getUser.current_balance) + numberFloat
+                getUser.current_balance = float(
+                    getUser.current_balance) + numberFloat
                 getUser.save()
             else:
-                getUser.current_balance = float(getUser.current_balance) - numberFloat
-                getUser.save()
+                getUser.current_balance = float(
+                    getUser.current_balance) - numberFloat
+                getUser.save() """
         user_value = self.request.user
         category = self.request.data.get("category")
         serializer.save(category=category, user=user_value)
