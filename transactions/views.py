@@ -176,14 +176,17 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().update(request, *args, **kwargs)
 
     def perform_update(self, serializer):
+
         category_value = self.request.data.get("category", False)
         user_value = self.request.user
         try:
+            # ipdb.set_trace()
             category = Category.objects.get(
                 name=category_value, user=self.request.user)
-            if self.request.data['value']:
-                getUser = User.objects.get(id=self.request.user.id)
+            ipdb.set_trace()
+            if self.request.data.get('value', False):
                 numberFloat = float(self.request.data["value"])
+                getUser = User.objects.get(id=self.request.user.id)
                 if getUser:
                     if self.request.data["type"] == "cashin":
                         getUser.current_balance = float(
@@ -200,7 +203,7 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
             category.is_valid(raise_exception=True)
             category.save(user=self.request.user)
             category_instance = Category.objects.get(id=category.data['id'])
-            if self.request.data['value']:
+            if self.request.data.get('value', False):
                 getUser = User.objects.get(id=self.request.user.id)
                 numberFloat = float(self.request.data["value"])
                 if getUser:
