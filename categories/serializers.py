@@ -4,7 +4,7 @@ import ipdb
 from .models import Category
 from transactions.models import Transaction
 
-# from transactions.models import Transaction
+from transactions.models import Transaction
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -47,9 +47,16 @@ class CategorySerializer(serializers.ModelSerializer):
         if (
             float(obj.limit) <= self.get_total_value_category(obj)
             and float(obj.limit) > 0
+            and obj.name != "cashin"
         ):
             return False
-        return True
+        elif (
+            float(obj.limit) >= self.get_total_value_category(obj)
+            and float(obj.limit) > 0
+            and obj.name == "cashin"
+        ):
+            return True
+        return
 
     def create(self, validated_data):
         return Category.objects.create(**validated_data)
