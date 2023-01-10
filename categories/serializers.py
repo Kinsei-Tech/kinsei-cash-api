@@ -10,7 +10,8 @@ from transactions.models import Transaction
 class CategorySerializer(serializers.ModelSerializer):
 
     is_healthy = serializers.SerializerMethodField("get_is_healthy")
-    total_value_category = serializers.SerializerMethodField("get_total_value_category")
+    total_value_category = serializers.SerializerMethodField(
+        "get_total_value_category")
 
     class Meta:
         id = serializers.UUIDField(read_only=True)
@@ -45,10 +46,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def get_is_healthy(self, obj: Category):
         if (
+
             float(obj.limit) <= self.get_total_value_category(obj)
             and float(obj.limit) > 0
             and obj.name != "cashin"
         ):
+
             return False
         elif (
             float(obj.limit) >= self.get_total_value_category(obj)
@@ -56,7 +59,8 @@ class CategorySerializer(serializers.ModelSerializer):
             and obj.name == "cashin"
         ):
             return True
-        return
+        else:
+            return True
 
     def create(self, validated_data):
         return Category.objects.create(**validated_data)
