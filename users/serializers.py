@@ -18,14 +18,12 @@ class UserSerializer(serializers.ModelSerializer):
             "total_balance",
             "current_balance",
             "goal_balance",
-            "is_healthy"
+            "is_healthy",
         ]
-        read_only_fields = ['is_active', "current_balance", "is_healthy"]
+        read_only_fields = ["is_active", "current_balance", "is_healthy"]
         extra_kwargs = {
-            "password": {
-                "write_only": True
-            },
-            "is_healthy": {"read_only": True}
+            "password": {"write_only": True},
+            "is_healthy": {"read_only": True},
         }
 
     def get_is_healthy(self, obj: User):
@@ -52,3 +50,10 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
+
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
