@@ -74,7 +74,19 @@ class TransactionView(generics.ListCreateAPIView):
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs): 
+        getUser = User.objects.get(name=self.request.user.name)
+        numberFloat = float(self.request.data["value"])
+        if getUser:
+            if self.request.data["type"] == "cashin":
+                getUser.current_balance = float(
+                    getUser.current_balance) + numberFloat
+                getUser.save()
+            else:
+                getUser.current_balance = float(
+                    getUser.current_balance) - numberFloat
+                getUser.save()
+
         category_value = self.request.data.get("category", False)
         if category_value:
             category = Category.objects.get(
@@ -88,17 +100,7 @@ class TransactionView(generics.ListCreateAPIView):
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        """getUser = User.objects.get()
-        numberFloat = float(self.request.data["value"])
-        if getUser:
-            if self.request.data["type"] == "cashin":
-                getUser.current_balance = float(
-                    getUser.current_balance) + numberFloat
-                getUser.save()
-            else:
-                getUser.current_balance = float(
-                    getUser.current_balance) - numberFloat
-                getUser.save() """
+                
         user_value = self.request.user
         category = self.request.data.get("category")
         serializer.save(category=category, user=user_value)
