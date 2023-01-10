@@ -4,6 +4,7 @@ import csv
 import io
 import json
 import ipdb
+from datetime import datetime, timedelta
 from rest_framework import generics
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -26,6 +27,7 @@ def csv_data_handling(csv):
         transaction_dict["category"] = "other"
         if transaction_dict["value"] < 0:
             transaction_dict["type"] = "cashout"
+            transaction_dict['value'] = transaction_dict['value'] * -1
         else:
             transaction_dict["type"] = "cashin"
         transaction_dict["date"] = transaction_dict.pop("data")
@@ -101,6 +103,29 @@ class TransactionView(generics.ListCreateAPIView):
 
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
+
+    def get_queryset(self):
+        # high_values = self.kwargs['high_values']
+        # ipdb.set_trace()
+        if self.request.query_params.get('type', False):
+            type_params = self.request.query_params.get('type', False)
+            high_params = self.request.query_params.get('high', None)
+            lower_params = self.request.query_params.get('lower', None)
+
+            if high_params:
+                return self.queryset.filter(
+                    date__gte=datetime.today()-timedelta(days=30), type=type_params, user=self.request.user
+                ).order_by('-value')[0:int(high_params)]
+            elif lower_params:
+                return self.queryset.filter(
+                    date__gte=datetime.today()-timedelta(days=30), type=type_params, user=self.request.user
+                ).order_by('value')[0:int(lower_params)]
+            else:
+                return self.queryset.filter(
+                    date__gte=datetime.today()-timedelta(days=30), type=type_params, user=self.request.user
+                ).order_by('-value')[0:]
+            # return self.queryset.filter(type='cashout', user=self.request.user).order_by('-value')[0:high_values]
+        return self.queryset.filter(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
         category_value = self.request.data.get("category", False)
@@ -216,3 +241,22 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
                         getUser.current_balance) - numberFloat
                     getUser.save()
             serializer.save(category=category_instance, user=user_value)
+
+
+""" class TransactionFilterView(generics.ListAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    serializer_class = TransactionSerializer
+    queryset = Transaction.objects.all()
+
+    def get_queryset(self):
+        high_values = self.kwargs['high_values']
+        ipdb.set_trace()
+        if self.request.query_params[hi]:
+        if high_values:
+            return self.queryset.filter(
+                date__gte=datetime.today()-timedelta(days=30), type='cashout', user=self.request.user
+            ).order_by('value')[0:high_values]
+            return self.queryset.filter(type='cashout', user=self.request.user).order_by('-value')[0:high_values]
+        return self.queryset.filter(type='cashout', user=self.request.user).order_by('-value') """
