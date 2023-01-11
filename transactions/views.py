@@ -1,21 +1,18 @@
 from rest_framework.views import APIView, status
 from rest_framework.response import Response
+from rest_framework import generics
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from categories.models import Category
+from .models import Transaction
+from .serializers import TransactionSerializer
+from categories.serializers import CategorySerializer
+from categories.permissions import IsAccountOwner
+from datetime import datetime, timedelta
 import csv
 import io
 import json
 import ipdb
-from datetime import datetime, timedelta
-from rest_framework import generics
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from .models import Transaction
-from .serializers import TransactionSerializer
-from users.models import User
-from categories.serializers import CategorySerializer
-from django.shortcuts import get_object_or_404
-from categories.permissions import IsAccountOwner
-
-from categories.models import Category
 
 
 def csv_data_handling(csv):
@@ -84,8 +81,9 @@ class TransactionView(generics.ListCreateAPIView):
     queryset = Transaction.objects.all()
 
     def get_queryset(self):
-        ipdb.set_trace()
-        if self.request.query_params.get("type", False):
+        filters = self.request.query_params.get("type", False)
+
+        if filters:
             type_params = self.request.query_params.get("type", False)
             high_params = self.request.query_params.get("high", None)
             lower_params = self.request.query_params.get("lower", None)

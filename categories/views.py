@@ -1,14 +1,11 @@
 from .serializers import CategorySerializer
 from .models import Category
 from transactions.models import Transaction
-from users.models import User
 from .permissions import IsAccountOwner
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import generics
 from rest_framework.views import APIView, Request, Response, status
 from django.shortcuts import get_list_or_404
-import ipdb
 
 
 class CategoryView(generics.ListCreateAPIView):
@@ -21,7 +18,6 @@ class CategoryView(generics.ListCreateAPIView):
         route_parameter = self.request.query_params.get("is_healthy", False)
         expense = self.request.query_params.get("expense", False)
         user_categories = Category.objects.filter(user=self.request.user)
-        ipdb.set_trace()
         serializer = self.serializer_class(user_categories, many=True)
 
         if route_parameter == "True" or route_parameter == "False":
@@ -30,13 +26,13 @@ class CategoryView(generics.ListCreateAPIView):
                 "is_healthy") == validacao]
             return Response(lista)
 
-        if expense == "maior":
+        if expense == "higher":
             lista = [category for category in serializer.data]
             category_order = sorted(
                 lista, key=lambda category: category['total_expenses_category'])
             return Response(category_order[-1])
 
-        if expense == "menor":
+        if expense == "lower":
             lista = [category for category in serializer.data]
             category_order = sorted(
                 lista, key=lambda category: category['total_expenses_category'])

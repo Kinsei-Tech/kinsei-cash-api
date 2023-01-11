@@ -8,6 +8,3 @@ urlpatterns = [
     path("transactions/<uuid:pk>/", views.TransactionDetailView.as_view()),
     path('excel/', ExcelAutoView.as_view()),
 ]
-
-""" path("transactions/<int:high_values>/",
-         views.TransactionFilterView.as_view()), """

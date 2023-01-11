@@ -1,5 +1,4 @@
 from rest_framework import serializers
-import ipdb
 
 from .models import Category
 from transactions.models import Transaction
