@@ -10,6 +10,7 @@ class TransactionDetailViewsTest(APITestCase):
         cls.access_token_1 = str(token_1.access_token)
 
         user_2_data = {
+            "name": "Wigo Rossim",
             "email": "wigo_rossim@mail.com",
             "username": "wigoRossim",
             "password": "1234",
@@ -19,7 +20,7 @@ class TransactionDetailViewsTest(APITestCase):
         cls.user_2, token_2 = create_user_with_token(user_data=user_2_data)
         cls.access_token_2 = str(token_2.access_token)
 
-        cls.transaction_user_1 = create_transaction(cls.user_1)
+        cls.transaction_user_1 = create_transaction()
 
         cls.BASE_URL = f"/api/transactions/{cls.transaction_user_1.id}/"
 

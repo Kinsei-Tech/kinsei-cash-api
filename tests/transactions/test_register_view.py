@@ -18,10 +18,10 @@ class CreateTransactionViewTest(APITestCase):
 
         returned_data: dict = response.json()
         expected_fields = {
-            "user",
             "type",
             "name",
             "value",
+            "category",
         }
         returned_fields = set(returned_data.keys())
         msg = (
@@ -57,9 +57,9 @@ class CreateTransactionViewTest(APITestCase):
 
     def test_transaction_creation_success(self):
         transaction_data = {
-            "user": self.user.id,
             "type": "cash out",
             "name": "aluguel",
+            "category": "house_bills",
             "value": 1500,
         }
 
