@@ -8,6 +8,7 @@ User: AbstractUser = get_user_model()
 def create_user_with_token(user_data=None) -> tuple[AbstractUser, RefreshToken]:
     if not user_data:
         user_data = {
+            "name": "Laís Bomtempo",
             "username": "laissm",
             "email": "lais_bomtempo@mail.com",
             "password": "1234",
