@@ -11,7 +11,6 @@ class CategoryName(models.TextChoices):
     TRAVEL = "travel"
     SELF_CARE = "self_care"
     CLOTHES = "clothes"
-    CASHIN = "cashin"
     TRANSPORTATION = "transportation"
     FOOD = "food"
     DONATION = "donation"

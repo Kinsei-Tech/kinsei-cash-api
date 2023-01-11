@@ -44,7 +44,7 @@ class CategorySerializer(serializers.ModelSerializer):
             for i in transactions:
                 if i.category_id == obj.id and i.type == "cashout":
                     total_value -= i.value
-                if i.category_id == obj.id and i.type == "cashin":
+                elif i.category_id == obj.id and i.type == "cashin":
                     total_value += i.value
             return obj.limit + total_value
 
