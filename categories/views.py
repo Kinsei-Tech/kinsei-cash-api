@@ -8,14 +8,12 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import generics
 from rest_framework.views import APIView, Request, Response, status
 from django.shortcuts import get_list_or_404
-from django.forms.models import model_to_dict
-from datetime import datetime, timedelta
 import ipdb
 
 
 class CategoryView(generics.ListCreateAPIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAccountOwner]
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
 
@@ -23,25 +21,31 @@ class CategoryView(generics.ListCreateAPIView):
         route_parameter = self.request.query_params.get("is_healthy", False)
         expense = self.request.query_params.get("expense", False)
         user_categories = Category.objects.filter(user=self.request.user)
+        ipdb.set_trace()
         serializer = self.serializer_class(user_categories, many=True)
 
         if route_parameter == "True" or route_parameter == "False":
-            validacao = route_parameter=="True"
-            lista = [category for category in serializer.data if category.get("is_healthy") == validacao]
+            validacao = route_parameter == "True"
+            lista = [category for category in serializer.data if category.get(
+                "is_healthy") == validacao]
             return Response(lista)
 
         if expense == "maior":
             lista = [category for category in serializer.data]
-            category_order = sorted(lista, key=lambda category: category['total_expenses_category'])
+            category_order = sorted(
+                lista, key=lambda category: category['total_expenses_category'])
             return Response(category_order[-1])
-
 
         if expense == "menor":
             lista = [category for category in serializer.data]
-            category_order = sorted(lista, key=lambda category: category['total_expenses_category'])
+            category_order = sorted(
+                lista, key=lambda category: category['total_expenses_category'])
             return Response(category_order[0])
 
         return super().list(self.request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
