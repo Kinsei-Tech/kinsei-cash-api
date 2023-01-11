@@ -1,12 +1,13 @@
 from rest_framework import serializers
 from .models import User
 from transactions.models import Transaction
+import ipdb
 
 
 class UserSerializer(serializers.ModelSerializer):
 
     is_healthy = serializers.SerializerMethodField("get_is_healthy")
-    current_balance =serializers.SerializerMethodField("get_current_balance")
+    current_balance = serializers.SerializerMethodField("get_current_balance")
 
     class Meta:
         model = User
@@ -34,14 +35,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_current_balance(self, obj: User):
         listTransactions = Transaction.objects.filter(user_id=obj.id)
-        current_balance = "0.00"
+        current_balance = 0.00
         if float(obj.total_balance) > 0:
             current_balance = obj.total_balance
         for transaction in listTransactions:
+            ipdb.set_trace()
             if transaction.type == "cashin":
-                current_balance += transaction.value
+                current_balance += float(transaction.value)
             else:
-                current_balance -= transaction.value
+                current_balance -= float(transaction.value)
         return str(current_balance)
 
 
