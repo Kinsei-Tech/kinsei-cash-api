@@ -79,6 +79,7 @@ class UserDetailViewsTest(APITestCase):
 
         expected_fields = {
             "id",
+            "name",
             "username",
             "email",
             "is_active",
@@ -177,6 +178,7 @@ class UserDetailViewsTest(APITestCase):
     def test_update_user_success(self):
         info_to_patch = {
             "id": "está errado",
+            "name": "Laís Bomtempo Silveira Martins",
             "email": "lais_bomtempo_sm@mail.com",
             "current_balance": 2000,
             "total_balance": 7000,
@@ -197,6 +199,7 @@ class UserDetailViewsTest(APITestCase):
 
         expected_data = {
             "id": str(self.user_1.id),
+            "name": info_to_patch["name"],
             "email": info_to_patch["email"],
             "username": self.user_1.username,
             "total_balance": "5000.00",

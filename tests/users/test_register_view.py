@@ -20,6 +20,7 @@ class UserRegistrationViewTest(APITestCase):
 
         resulted_data: dict = response.json()
         expected_fields = {
+            "name",
             "username",
             "email",
             "password",
@@ -41,6 +42,7 @@ class UserRegistrationViewTest(APITestCase):
 
     def test_user_creation_success(self):
         register_data = {
+            "name": "Laís Bomtempo",
             "email": "lais_bomtempo@mail.com",
             "username": "laissm",
             "password": "1234",
@@ -54,6 +56,7 @@ class UserRegistrationViewTest(APITestCase):
 
         expected_data = {
             "id": str(added_user.id),
+            "name": "Laís Bomtempo",
             "email": "lais_bomtempo@mail.com",
             "username": "laissm",
             "total_balance": "5000.00",
@@ -79,6 +82,7 @@ class UserRegistrationViewTest(APITestCase):
 
     def test_non_unique_email_user_creation(self):
         register_data = {
+            "name": "Laís Bomtempo",
             "email": "lais_bomtempo@mail.com",
             "username": "laissm",
             "password": "1234",
