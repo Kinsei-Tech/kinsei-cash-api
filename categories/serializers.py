@@ -11,6 +11,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     is_healthy = serializers.SerializerMethodField()
     money_available_category = serializers.SerializerMethodField()
+    total_expenses_category = serializers.SerializerMethodField()
 
     class Meta:
         id = serializers.UUIDField(read_only=True)
@@ -21,19 +22,31 @@ class CategorySerializer(serializers.ModelSerializer):
             "limit",
             "categories_transactions",
             "money_available_category",
+            "total_expenses_category",
             "is_healthy",
         ]
         read_only_fields = [
             "id",
             "categories_transactions",
             "money_available_category",
+            "total_expenses_category",
             "is_healthy",
         ]
         extra_kwargs = {
             "is_healthy": {"read_only": True},
             "money_available_category": {"read_only": True},
+            "total_expenses_category": {"read_only": True},
         }
         depth = 1
+
+    def get_total_expenses_category(self, obj: Category):
+        transactions = Transaction.objects.all()
+        total_expenses = 0
+        for i in transactions:
+            if i.category_id == obj.id and i.type == "cashout":
+                total_expenses += i.value
+
+        return total_expenses
 
     def get_money_available_category(self, obj: Category):
         transactions = Transaction.objects.all()
