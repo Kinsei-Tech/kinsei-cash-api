@@ -50,22 +50,12 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def get_is_healthy(self, obj: Category):
         if (
-            type(obj.limit) == float
-            and float(obj.limit) <= self.get_total_value_category(obj)
-            and float(obj.limit) > 0
-            and obj.name == "cashout"
-        ):
-
-            return False
-        elif (
-            type(obj.limit) == float
-            and float(obj.limit) >= self.get_total_value_category(obj)
-            and float(obj.limit) > 0
-            and obj.name == "cashin"
+            type(self.get_money_available_category(obj)) == str
+            or float(self.get_money_available_category(obj)) >= 0
         ):
             return True
         else:
-            return True
+            return False
 
     def create(self, validated_data):
         return Category.objects.create(**validated_data)
