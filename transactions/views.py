@@ -12,6 +12,7 @@ from .models import Transaction
 from .serializers import TransactionSerializer
 from users.models import User
 from categories.serializers import CategorySerializer
+from django.shortcuts import get_object_or_404
 
 from categories.models import Category
 
@@ -27,7 +28,7 @@ def csv_data_handling(csv):
         transaction_dict["category"] = "other"
         if transaction_dict["value"] < 0:
             transaction_dict["type"] = "cashout"
-            transaction_dict['value'] = transaction_dict['value'] * -1
+            transaction_dict["value"] = transaction_dict["value"] * -1
         else:
             transaction_dict["type"] = "cashin"
         transaction_dict["date"] = transaction_dict.pop("data")
@@ -55,17 +56,20 @@ class ExcelAutoView(APIView):
             category_value = data["category"]
             try:
                 category = Category.objects.get(
-                    name=category_value, user=self.request.user)
+                    name=category_value, user=self.request.user
+                )
                 getUser = User.objects.get(id=self.request.user.id)
-                numberFloat = float(data['value'])
+                numberFloat = float(data["value"])
                 if getUser:
                     if data["type"] == "cashin":
-                        getUser.current_balance = float(
-                            getUser.current_balance) + numberFloat
+                        getUser.current_balance = (
+                            float(getUser.current_balance) + numberFloat
+                        )
                         getUser.save()
                     else:
-                        getUser.current_balance = float(
-                            getUser.current_balance) - numberFloat
+                        getUser.current_balance = (
+                            float(getUser.current_balance) - numberFloat
+                        )
                         getUser.save()
                 # ipdb.set_trace()
                 serializer = TransactionSerializer(data=data)
@@ -76,18 +80,19 @@ class ExcelAutoView(APIView):
                 category = CategorySerializer(data=category_value)
                 category.is_valid(raise_exception=True)
                 category.save(user=self.request.user)
-                category_instance = Category.objects.get(
-                    id=category.data['id'])
+                category_instance = Category.objects.get(id=category.data["id"])
                 getUser = User.objects.get(id=self.request.user.id)
-                numberFloat = float(data['value'])
+                numberFloat = float(data["value"])
                 if getUser:
                     if data["type"] == "cashin":
-                        getUser.current_balance = float(
-                            getUser.current_balance) + numberFloat
+                        getUser.current_balance = (
+                            float(getUser.current_balance) + numberFloat
+                        )
                         getUser.save()
                     else:
-                        getUser.current_balance = float(
-                            getUser.current_balance) - numberFloat
+                        getUser.current_balance = (
+                            float(getUser.current_balance) - numberFloat
+                        )
                         getUser.save()
                 #
                 serializer = TransactionSerializer(data=data)
@@ -107,23 +112,29 @@ class TransactionView(generics.ListCreateAPIView):
     def get_queryset(self):
         # high_values = self.kwargs['high_values']
         # ipdb.set_trace()
-        if self.request.query_params.get('type', False):
-            type_params = self.request.query_params.get('type', False)
-            high_params = self.request.query_params.get('high', None)
-            lower_params = self.request.query_params.get('lower', None)
+        if self.request.query_params.get("type", False):
+            type_params = self.request.query_params.get("type", False)
+            high_params = self.request.query_params.get("high", None)
+            lower_params = self.request.query_params.get("lower", None)
 
             if high_params:
                 return self.queryset.filter(
-                    date__gte=datetime.today()-timedelta(days=30), type=type_params, user=self.request.user
-                ).order_by('-value')[0:int(high_params)]
+                    date__gte=datetime.today() - timedelta(days=30),
+                    type=type_params,
+                    user=self.request.user,
+                ).order_by("-value")[0: int(high_params)]
             elif lower_params:
                 return self.queryset.filter(
-                    date__gte=datetime.today()-timedelta(days=30), type=type_params, user=self.request.user
-                ).order_by('value')[0:int(lower_params)]
+                    date__gte=datetime.today() - timedelta(days=30),
+                    type=type_params,
+                    user=self.request.user,
+                ).order_by("value")[0: int(lower_params)]
             else:
                 return self.queryset.filter(
-                    date__gte=datetime.today()-timedelta(days=30), type=type_params, user=self.request.user
-                ).order_by('-value')[0:]
+                    date__gte=datetime.today() - timedelta(days=30),
+                    type=type_params,
+                    user=self.request.user,
+                ).order_by("-value")[0:]
             # return self.queryset.filter(type='cashout', user=self.request.user).order_by('-value')[0:high_values]
         return self.queryset.filter(user=self.request.user)
 
@@ -137,12 +148,10 @@ class TransactionView(generics.ListCreateAPIView):
         numberFloat = float(self.request.data["value"])
         if getUser:
             if self.request.data["type"] == "cashin":
-                getUser.current_balance = float(
-                    getUser.current_balance) + numberFloat
+                getUser.current_balance = float(getUser.current_balance) + numberFloat
                 getUser.save()
             else:
-                getUser.current_balance = float(
-                    getUser.current_balance) - numberFloat
+                getUser.current_balance = float(getUser.current_balance) - numberFloat
                 getUser.save()
         return super().create(request, *args, **kwargs)
 
@@ -150,18 +159,19 @@ class TransactionView(generics.ListCreateAPIView):
         category_value = self.request.data.get("category", False)
         user_value = self.request.user
         try:
-            category = Category.objects.get(
-                name=category_value, user=self.request.user)
+            category = Category.objects.get(name=category_value, user=self.request.user)
             getUser = User.objects.get(id=self.request.user.id)
             numberFloat = float(self.request.data["value"])
             if getUser:
                 if self.request.data["type"] == "cashin":
-                    getUser.current_balance = float(
-                        getUser.current_balance) + numberFloat
+                    getUser.current_balance = (
+                        float(getUser.current_balance) + numberFloat
+                    )
                     getUser.save()
                 else:
-                    getUser.current_balance = float(
-                        getUser.current_balance) - numberFloat
+                    getUser.current_balance = (
+                        float(getUser.current_balance) - numberFloat
+                    )
                     getUser.save()
             serializer.save(category=category, user=user_value)
         except Category.DoesNotExist:
@@ -169,17 +179,19 @@ class TransactionView(generics.ListCreateAPIView):
             category = CategorySerializer(data=category_value)
             category.is_valid(raise_exception=True)
             category.save(user=self.request.user)
-            category_instance = Category.objects.get(id=category.data['id'])
+            category_instance = Category.objects.get(id=category.data["id"])
             getUser = User.objects.get(id=self.request.user.id)
             numberFloat = float(self.request.data["value"])
             if getUser:
                 if self.request.data["type"] == "cashin":
-                    getUser.current_balance = float(
-                        getUser.current_balance) + numberFloat
+                    getUser.current_balance = (
+                        float(getUser.current_balance) + numberFloat
+                    )
                     getUser.save()
                 else:
-                    getUser.current_balance = float(
-                        getUser.current_balance) - numberFloat
+                    getUser.current_balance = (
+                        float(getUser.current_balance) - numberFloat
+                    )
                     getUser.save()
             serializer.save(category=category_instance, user=user_value)
         # user_value = self.request.user
@@ -194,53 +206,67 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         category_value = self.request.data.get("category", False)
-        if not category_value:
-            return Response(
-                {"msg": "Missing category field"}, status.HTTP_400_BAD_REQUEST
-            )
+        if category_value:
+            category = Category.objects.get_or_create(name=category_value, user=self.request.user)[0]
+            self.request.data.update({"category": category})
+
         return super().update(request, *args, **kwargs)
 
     def perform_update(self, serializer):
+        user = self.request.user
+        if self.request.data.get("value", False):
+            numberFloat = float(self.request.data["value"])
+            if self.request.data["type"] == "cashin":
+                user.current_balance = float(user.current_balance) + numberFloat
+            else:
+                user.current_balance = float(user.current_balance) - numberFloat
+            user.save()
+            serializer.save(user=user)
 
-        category_value = self.request.data.get("category", False)
-        user_value = self.request.user
-        try:
-            # ipdb.set_trace()
-            category = Category.objects.get(
-                name=category_value, user=self.request.user)
-            ipdb.set_trace()
-            if self.request.data.get('value', False):
-                numberFloat = float(self.request.data["value"])
-                getUser = User.objects.get(id=self.request.user.id)
-                if getUser:
-                    if self.request.data["type"] == "cashin":
-                        getUser.current_balance = float(
-                            getUser.current_balance) + numberFloat
-                        getUser.save()
-                else:
-                    getUser.current_balance = float(
-                        getUser.current_balance) - numberFloat
-                    getUser.save()
-            serializer.save(category=category, user=user_value)
-        except Category.DoesNotExist:
-            category_value = {"name": category_value}
-            category = CategorySerializer(data=category_value)
-            category.is_valid(raise_exception=True)
-            category.save(user=self.request.user)
-            category_instance = Category.objects.get(id=category.data['id'])
-            if self.request.data.get('value', False):
-                getUser = User.objects.get(id=self.request.user.id)
-                numberFloat = float(self.request.data["value"])
-                if getUser:
-                    if self.request.data["type"] == "cashin":
-                        getUser.current_balance = float(
-                            getUser.current_balance) + numberFloat
-                        getUser.save()
-                else:
-                    getUser.current_balance = float(
-                        getUser.current_balance) - numberFloat
-                    getUser.save()
-            serializer.save(category=category_instance, user=user_value)
+    # def perform_update(self, serializer):
+
+    #     category_value = self.request.data.get("category", False)
+    #     user_value = self.request.user
+    #     try:
+    #         # ipdb.set_trace()
+    #         category = Category.objects.get(name=category_value, user=self.request.user)
+    #         ipdb.set_trace()
+    #         if self.request.data.get("value", False):
+    #             numberFloat = float(self.request.data["value"])
+    #             getUser = User.objects.get(id=self.request.user.id)
+    #             if getUser:
+    #                 if self.request.data["type"] == "cashin":
+    #                     getUser.current_balance = (
+    #                         float(getUser.current_balance) + numberFloat
+    #                     )
+    #                     getUser.save()
+    #             else:
+    #                 getUser.current_balance = (
+    #                     float(getUser.current_balance) - numberFloat
+    #                 )
+    #                 getUser.save()
+    #         serializer.save(category=category, user=user_value)
+    #     except Category.DoesNotExist:
+    #         category_value = {"name": category_value}
+    #         category = CategorySerializer(data=category_value)
+    #         category.is_valid(raise_exception=True)
+    #         category.save(user=self.request.user)
+    #         category_instance = Category.objects.get(id=category.data["id"])
+    #         if self.request.data.get("value", False):
+    #             getUser = User.objects.get(id=self.request.user.id)
+    #             numberFloat = float(self.request.data["value"])
+    #             if getUser:
+    #                 if self.request.data["type"] == "cashin":
+    #                     getUser.current_balance = (
+    #                         float(getUser.current_balance) + numberFloat
+    #                     )
+    #                     getUser.save()
+    #             else:
+    #                 getUser.current_balance = (
+    #                     float(getUser.current_balance) - numberFloat
+    #                 )
+    #                 getUser.save()
+    #         serializer.save(category=category_instance, user=user_value)
 
 
 """ class TransactionFilterView(generics.ListAPIView):
