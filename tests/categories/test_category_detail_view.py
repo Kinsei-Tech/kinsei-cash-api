@@ -11,6 +11,7 @@ class CategoryDetailViewsTest(APITestCase):
         cls.transaction_user_1 = create_transaction(cls.user_1)
 
         user_2_data = {
+            "name": "Wigo Rossim",
             "email": "wigo_rossim@mail.com",
             "username": "wigoRossim",
             "password": "1234",
