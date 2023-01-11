@@ -7,51 +7,19 @@ import uuid
 class Migration(migrations.Migration):
 
     initial = True
-
-    dependencies = []
+    dependencies = [
+    ]
 
     operations = [
         migrations.CreateModel(
-            name="Category",
+            name='Category',
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "name",
-                    models.CharField(
-                        choices=[
-                            ("house bills", "House Bills"),
-                            ("leisure", "Leisure"),
-                            ("education", "Education"),
-                            ("investment", "Investment"),
-                            ("health", "Health"),
-                            ("travel", "Travel"),
-                            ("self_care", "Self Care"),
-                            ("clothes", "Clothes"),
-                            ("cashin", "Cashin"),
-                            ("transportation", "Transportation"),
-                            ("food", "Food"),
-                            ("donation", "Donation"),
-                            ("other", "Other"),
-                        ],
-                        default="other",
-                        max_length=20,
-                    ),
-                ),
-                (
-                    "limit",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=1000),
-                ),
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('name', models.CharField(choices=[('house bills', 'House Bills'), ('leisure', 'Leisure'), ('education', 'Education'), ('investment', 'Investment'), ('health', 'Health'), ('travel', 'Travel'), ('self_care', 'Self Care'), ('clothes', 'Clothes'), ('gifts', 'Gifts'), ('transportation', 'Transportation'), ('food', 'Food'), ('donation', 'Donation'), ('other', 'Other')], default='other', max_length=20)),
+                ('limit', models.DecimalField(decimal_places=2, default=0, max_digits=1000)),
             ],
             options={
-                "ordering": ["id"],
+                'ordering': ['id'],
             },
         ),
     ]
