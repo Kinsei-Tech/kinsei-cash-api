@@ -14,6 +14,16 @@ class CategoryView(generics.ListCreateAPIView):
     def get_queryset(self):
         return self.queryset.filter(user_id=self.request.user)
 
+    
+    # def get_queryset(self):
+    #     route_parameter = self.request.GET.get("categories_transactions")
+
+    #     if route_parameter:
+    #         queryset = Category.objects.filter(is_healtry=True)
+    #         return queryset
+        
+    #     return super().get_queryset()
+
 
 class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [JWTAuthentication]

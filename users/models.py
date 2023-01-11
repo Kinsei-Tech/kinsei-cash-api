@@ -10,12 +10,9 @@ class User(AbstractUser):
     email = models.EmailField(max_length=256, unique=True)
     password = models.CharField(max_length=256)
     is_active = models.BooleanField(default=True)
-    is_healthy = models.BooleanField(default=True)
     total_balance = models.DecimalField(
         max_digits=1000, decimal_places=2, default=0, null=True
     )
-    current_balance = models.DecimalField(
-        max_digits=1000, decimal_places=2, default=0)
     goal_balance = models.DecimalField(
         max_digits=1000, decimal_places=2, default=0, null=True
     )
