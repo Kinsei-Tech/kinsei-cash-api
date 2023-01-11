@@ -66,8 +66,7 @@ class ExcelAutoView(APIView):
                 category = CategorySerializer(data=category_value)
                 category.is_valid(raise_exception=True)
                 category.save(user=self.request.user)
-                category_instance = Category.objects.get(
-                    id=category.data["id"])
+                category_instance = Category.objects.get(id=category.data["id"])
                 serializer = TransactionSerializer(data=data)
                 serializer.is_valid(raise_exception=True)
                 serializer.save(category=category_instance, user=request.user)
@@ -120,10 +119,7 @@ class TransactionView(generics.ListCreateAPIView):
         category_value = self.request.data.get("category", False)
         user_value = self.request.user
         try:
-            category = Category.objects.get(
-                name=category_value, user=self.request.user)
-            category = Category.objects.get(
-                name=category_value, user=self.request.user)
+            category = Category.objects.get(name=category_value, user=self.request.user)
             serializer.save(category=category, user=user_value)
         except Category.DoesNotExist:
             category_value = {"name": category_value}
@@ -145,22 +141,14 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
         category_value = self.request.data.get("category", False)
         if category_value:
             category = Category.objects.get_or_create(
-                name=category_value, user=self.request.user)[0]
+                name=category_value, user=self.request.user
+            )[0]
             self.request.data.update({"category": category})
 
         return super().update(request, *args, **kwargs)
 
     def perform_update(self, serializer):
-        category_value = self.request.data.get("category", False)
-        user_value = self.request.user
-        try:
-            category = Category.objects.get(
-                name=category_value, user=self.request.user)
-            serializer.save(category=category, user=user_value)
-        except Category.DoesNotExist:
-            category_value = {"name": category_value}
-            category = CategorySerializer(data=category_value)
-            category.is_valid(raise_exception=True)
-            category.save(user=self.request.user)
-            category_instance = Category.objects.get(id=category.data['id'])
-            serializer.save(category=category_instance, user=user_value)
+        user = self.request.user
+
+        user.save()
+        serializer.save(user=user)
