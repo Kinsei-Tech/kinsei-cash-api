@@ -13,6 +13,7 @@ from .serializers import TransactionSerializer
 from users.models import User
 from categories.serializers import CategorySerializer
 from django.shortcuts import get_object_or_404
+from categories.permissions import IsAccountOwner
 
 from categories.models import Category
 
@@ -92,13 +93,13 @@ class TransactionView(generics.ListCreateAPIView):
                     date__gte=datetime.today() - timedelta(days=30),
                     type=type_params,
                     user=self.request.user,
-                ).order_by("-value")[0: int(high_params)]
+                ).order_by("-value")[0 : int(high_params)]
             elif lower_params:
                 return self.queryset.filter(
                     date__gte=datetime.today() - timedelta(days=30),
                     type=type_params,
                     user=self.request.user,
-                ).order_by("value")[0: int(lower_params)]
+                ).order_by("value")[0 : int(lower_params)]
             else:
                 return self.queryset.filter(
                     date__gte=datetime.today() - timedelta(days=30),
@@ -119,8 +120,6 @@ class TransactionView(generics.ListCreateAPIView):
         category_value = self.request.data.get("category", False)
         user_value = self.request.user
         try:
-            category = Category.objects.get(
-                name=category_value, user=self.request.user)
             category = Category.objects.get(name=category_value, user=self.request.user)
             serializer.save(category=category, user=user_value)
         except Category.DoesNotExist:
@@ -135,6 +134,7 @@ class TransactionView(generics.ListCreateAPIView):
 class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAccountOwner]
 
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
@@ -142,22 +142,21 @@ class TransactionDetailView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         category_value = self.request.data.get("category", False)
         if category_value:
-            category = Category.objects.get_or_create(name=category_value, user=self.request.user)[0]
-            self.request.data.update({"category": category})
-
+            try:
+                category = Category.objects.get(
+                    name=category_value, user=self.request.user
+                )
+                self.request.data.update({"category": category})
+            except Category.DoesNotExist:
+                category_value = {"name": category_value}
+                category = CategorySerializer(data=category_value)
+                category.is_valid(raise_exception=True)
+                category.save(user=self.request.user)
+                category_instance = Category.objects.get(id=category.data["id"])
+                self.request.data.update({"category": category_instance})
         return super().update(request, *args, **kwargs)
 
     def perform_update(self, serializer):
-        category_value = self.request.data.get("category", False)
-        user_value = self.request.user
-        try:
-            category = Category.objects.get(
-                name=category_value, user=self.request.user)
-            serializer.save(category=category, user=user_value)
-        except Category.DoesNotExist:
-            category_value = {"name": category_value}
-            category = CategorySerializer(data=category_value)
-            category.is_valid(raise_exception=True)
-            category.save(user=self.request.user)
-            category_instance = Category.objects.get(id=category.data['id'])
-            serializer.save(category=category_instance, user=user_value)  
+        if self.request.data.get("category", False):
+            serializer.save(category=self.request.data["category"])
+        return serializer.save()
