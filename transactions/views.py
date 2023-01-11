@@ -60,7 +60,7 @@ class ExcelAutoView(APIView):
                 )
                 serializer = TransactionSerializer(data=data)
                 serializer.is_valid(raise_exception=True)
-                serializer.save(category=category, user=getUser)
+                serializer.save(category=category, user=request.user)
             except Category.DoesNotExist:
                 category_value = {"name": category_value}
                 category = CategorySerializer(data=category_value)
@@ -69,7 +69,7 @@ class ExcelAutoView(APIView):
                 category_instance = Category.objects.get(id=category.data["id"])
                 serializer = TransactionSerializer(data=data)
                 serializer.is_valid(raise_exception=True)
-                serializer.save(category=category_instance, user=getUser)
+                serializer.save(category=category_instance, user=request.user)
 
         return Response({"msg": "extract successfully added"}, status.HTTP_201_CREATED)
 
