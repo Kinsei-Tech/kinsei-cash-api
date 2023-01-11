@@ -26,7 +26,7 @@ class Category(models.Model):
     name = models.CharField(
         max_length=20, choices=CategoryName.choices, default=CategoryName.OTHER
     )
-    limit = models.DecimalField(max_digits=1000, decimal_places=2, default=0)
+    limit = models.DecimalField(max_digits=15, decimal_places=2, default=0)
 
     user = models.ForeignKey(
         "users.User",
