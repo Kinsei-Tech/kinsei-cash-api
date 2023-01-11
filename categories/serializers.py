@@ -39,13 +39,13 @@ class CategorySerializer(serializers.ModelSerializer):
         transactions = Transaction.objects.all()
         total_value = 0
         if obj.limit == 0:
-            return "Please define a limit first, so we can know how much money do you still have available in this category."
+            return "Limit wasn't defined yet. Please define your limit, so we can know how much money do you have available in this category."
         else:
             for i in transactions:
-                if i.category_id == obj.id and i.type == "cashin":
-                    total_value += i.value
-                elif i.category_id == obj.id and i.type == "cashout":
+                if i.category_id == obj.id and i.type == "cashout":
                     total_value -= i.value
+                elif i.category_id == obj.id and i.type == "cashin":
+                    total_value += i.value
             return obj.limit + total_value
 
     def get_is_healthy(self, obj: Category):
