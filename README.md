@@ -1,2 +1,2 @@
 # kinsei-cash-api
-近世キャッシュ
+近世キャッシュAPI
